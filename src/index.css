@@ -1,0 +1,115 @@
+@import 'tailwindcss';
+
+/*
+  Flinx Realty CRM — design tokens.
+  Deliberately a single committed light theme: the demo has to look identical on a
+  projector, a laptop and a phone, whatever theme the viewer's OS is set to. Every
+  surface paints its own colour so nothing inherits from the host page.
+*/
+@theme {
+  /* Brand — deep evergreen, the "building wealth" register */
+  --color-brand-50: #eef5f2;
+  --color-brand-100: #d5e7e0;
+  --color-brand-200: #a9cfc2;
+  --color-brand-300: #74b09e;
+  --color-brand-400: #47907b;
+  --color-brand-500: #2b7261;
+  --color-brand-600: #1c5c4d;
+  --color-brand-700: #14483d;
+  --color-brand-800: #0f3730;
+  --color-brand-900: #0a2823;
+  --color-brand-950: #061a17;
+
+  /* Accent — brass */
+  --color-gold-50: #fbf6e9;
+  --color-gold-100: #f4e8c6;
+  --color-gold-200: #e9d491;
+  --color-gold-300: #dcbc59;
+  --color-gold-400: #c8a44d;
+  --color-gold-500: #ab8834;
+  --color-gold-600: #8a6b26;
+  --color-gold-700: #6b521e;
+
+  /* Neutrals — warm paper, not blue-grey */
+  --color-paper: #f8f7f4;
+  --color-surface: #ffffff;
+  --color-ink-50: #f4f4f2;
+  --color-ink-100: #e8e7e3;
+  --color-ink-200: #d6d5cf;
+  --color-ink-300: #b4b2a9;
+  --color-ink-400: #8c8a80;
+  --color-ink-500: #6b6960;
+  --color-ink-600: #514f48;
+  --color-ink-700: #3b3935;
+  --color-ink-800: #26251f;
+  --color-ink-900: #16150f;
+
+  /* Semantic */
+  --color-won: #1a7f5a;
+  --color-won-soft: #e4f4ec;
+  --color-lost: #b4453a;
+  --color-lost-soft: #fbeae8;
+  --color-warn: #b5761a;
+  --color-warn-soft: #fdf1de;
+  --color-info: #3b6ca8;
+  --color-info-soft: #e9f0f9;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+
+  --radius-card: 0.75rem;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink-800);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100dvh;
+  background-color: var(--color-paper);
+}
+
+/* Numbers in tables and stat tiles must line up column-wise. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Thin, unobtrusive scrollbars for the kanban and wide tables. */
+.scroll-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-200) transparent;
+}
+.scroll-slim::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+.scroll-slim::-webkit-scrollbar-thumb {
+  background: var(--color-ink-200);
+  border-radius: 999px;
+}
+.scroll-slim::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

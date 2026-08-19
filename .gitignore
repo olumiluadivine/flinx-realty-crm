@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.local
+.DS_Store
+.vite/
+
+# Internal pitch notes — kept local, not published
+DEMO-SCRIPT.md
