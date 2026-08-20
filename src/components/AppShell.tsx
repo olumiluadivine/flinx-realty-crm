@@ -30,12 +30,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col bg-paper lg:flex-row">
       {/* Desktop rail */}
-      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-brand-900/40 bg-brand-900 lg:flex xl:w-64">
+      <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-ink-800 bg-ink-900 lg:flex xl:w-64">
         <Brandmark />
         <nav className="scroll-slim flex-1 overflow-y-auto px-3 pb-4">
           {grouped.map(({ group, items: groupItems }) => (
             <div key={group} className="mb-5">
-              <div className="mb-1.5 px-2.5 text-[10.5px] font-semibold tracking-[0.13em] text-brand-300/70 uppercase">
+              <div className="mb-1.5 px-2.5 text-[10.5px] font-semibold tracking-[0.13em] text-ink-400 uppercase">
                 {GROUP_LABEL[group]}
               </div>
               <div className="flex flex-col gap-0.5">
@@ -63,16 +63,24 @@ export function AppShell({ children }: { children: ReactNode }) {
   )
 }
 
+/**
+ * The wordmark as the site sets it: "flin" in amber, the "X" in azure — and in a
+ * bold sans, not the app's display serif, because that is how the real logo is drawn.
+ */
+export function Wordmark({ className }: { className?: string }) {
+  return (
+    <span className={cx('font-sans font-bold tracking-[-0.02em] lowercase', className)}>
+      <span className="text-gold-400">flin</span>
+      <span className="text-brand-500 uppercase">x</span>
+    </span>
+  )
+}
+
 function Brandmark() {
   return (
-    <div className="flex items-center gap-2.5 px-5 py-5">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold-400 font-display text-lg font-semibold text-brand-900">
-        F
-      </span>
-      <div className="min-w-0 leading-tight">
-        <div className="font-display text-[15px] font-semibold text-white">Flinx Realty</div>
-        <div className="text-[11px] text-brand-300">Sales CRM</div>
-      </div>
+    <div className="px-5 py-5">
+      <Wordmark className="text-[27px] leading-none" />
+      <div className="mt-1.5 text-[10px] tracking-[0.22em] text-ink-400 uppercase">Realty · Sales CRM</div>
     </div>
   )
 }
@@ -85,8 +93,8 @@ function RailLink({ item }: { item: NavItem }) {
         cx(
           'group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13.5px] transition-colors',
           isActive
-            ? 'bg-brand-700/70 font-medium text-white'
-            : 'text-brand-100/80 hover:bg-brand-800/60 hover:text-white',
+            ? 'bg-brand-700 font-medium text-white'
+            : 'text-ink-300 hover:bg-ink-800 hover:text-white',
         )
       }
     >
@@ -101,12 +109,12 @@ function RailLink({ item }: { item: NavItem }) {
 function DemoDataFooter() {
   const resetDemo = useStore((s) => s.resetDemo)
   return (
-    <div className="border-t border-brand-800/70 px-4 py-3.5">
-      <div className="flex items-center gap-1.5 text-[11px] font-medium text-brand-200">
+    <div className="border-t border-ink-800 px-4 py-3.5">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-ink-200">
         <span className="h-1.5 w-1.5 rounded-full bg-gold-400" aria-hidden />
         Demo workspace
       </div>
-      <p className="mt-1 text-[11px] leading-relaxed text-brand-300/70">
+      <p className="mt-1 text-[11px] leading-relaxed text-ink-400">
         Sample data. Anything you change here is yours alone.
       </p>
       <button
@@ -115,7 +123,7 @@ function DemoDataFooter() {
             resetDemo()
           }
         }}
-        className="mt-2 text-[11.5px] font-medium text-gold-300 hover:text-gold-200"
+        className="mt-2 text-[11.5px] font-medium text-brand-400 hover:text-brand-300"
       >
         Reset workspace
       </button>
@@ -135,10 +143,8 @@ function Header({ onOpenMenu }: { onOpenMenu: () => void }) {
           className="flex items-center gap-2 lg:hidden"
           aria-label="Open menu"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-800 font-display text-sm font-semibold text-gold-300">
-            F
-          </span>
-          <span className="font-display text-[15px] font-semibold text-ink-900">Flinx CRM</span>
+          <Wordmark className="text-[21px] leading-none" />
+          <span className="text-[10px] tracking-[0.18em] text-ink-400 uppercase">CRM</span>
         </button>
 
         <div className="ml-auto flex items-center gap-2">
@@ -168,7 +174,7 @@ function TourButton() {
   if (active) return null
   return (
     <Button size="sm" onClick={() => setTourStep(0)} className="hidden lg:inline-flex">
-      <span aria-hidden className="text-gold-500">
+      <span aria-hidden className="text-brand-600">
         ▶
       </span>
       Take a tour
@@ -324,19 +330,19 @@ function MobileMenu({
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
       <button aria-label="Close menu" onClick={onClose} className="absolute inset-0 bg-ink-900/40" />
-      <div className="absolute inset-y-0 left-0 flex w-[82%] max-w-xs flex-col bg-brand-900">
+      <div className="absolute inset-y-0 left-0 flex w-[82%] max-w-xs flex-col bg-ink-900">
         <Brandmark />
-        <div className="mx-4 mb-3 flex items-center gap-2.5 rounded-lg bg-brand-800/70 px-3 py-2.5">
+        <div className="mx-4 mb-3 flex items-center gap-2.5 rounded-lg bg-ink-800 px-3 py-2.5">
           <Avatar name={viewer.full_name} hue={viewer.hue} size={30} />
           <div className="min-w-0 leading-tight">
             <div className="truncate text-[13px] font-medium text-white">{viewer.full_name}</div>
-            <div className="text-[11px] text-brand-300">{ROLE_LABEL[viewer.role]}</div>
+            <div className="text-[11px] text-ink-400">{ROLE_LABEL[viewer.role]}</div>
           </div>
         </div>
         <nav className="scroll-slim flex-1 overflow-y-auto px-3 pb-4">
           {items.map(({ group, items: groupItems }) => (
             <div key={group} className="mb-4">
-              <div className="mb-1.5 px-2.5 text-[10.5px] font-semibold tracking-[0.13em] text-brand-300/70 uppercase">
+              <div className="mb-1.5 px-2.5 text-[10.5px] font-semibold tracking-[0.13em] text-ink-400 uppercase">
                 {GROUP_LABEL[group]}
               </div>
               <div className="flex flex-col gap-0.5">
@@ -347,13 +353,13 @@ function MobileMenu({
             </div>
           ))}
         </nav>
-        <div className="border-t border-brand-800 px-4 py-3">
+        <div className="border-t border-ink-800 px-4 py-3">
           <button
             onClick={() => {
               if (confirm('Reset this workspace to its original sample data?')) resetDemo()
               onClose()
             }}
-            className="text-[12px] font-medium text-gold-300"
+            className="text-[12px] font-medium text-brand-400"
           >
             Reset workspace
           </button>

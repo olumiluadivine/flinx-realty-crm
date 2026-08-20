@@ -7,52 +7,52 @@
   surface paints its own colour so nothing inherits from the host page.
 */
 @theme {
-  /* Brand — deep evergreen, the "building wealth" register */
-  --color-brand-50: #eef5f2;
-  --color-brand-100: #d5e7e0;
-  --color-brand-200: #a9cfc2;
-  --color-brand-300: #74b09e;
-  --color-brand-400: #47907b;
-  --color-brand-500: #2b7261;
-  --color-brand-600: #1c5c4d;
-  --color-brand-700: #14483d;
-  --color-brand-800: #0f3730;
-  --color-brand-900: #0a2823;
-  --color-brand-950: #061a17;
+  /* Brand azure — #29ABE2, taken from flinxrealtyltd.com (logo "X", primary CTA) */
+  --color-brand-50: #eaf7fd;
+  --color-brand-100: #cdedfa;
+  --color-brand-200: #a3ddf4;
+  --color-brand-300: #6fc8ec;
+  --color-brand-400: #45b7e7;
+  --color-brand-500: #29abe2;
+  --color-brand-600: #1b8fc0;
+  --color-brand-700: #17739b;
+  --color-brand-800: #155c7c;
+  --color-brand-900: #134b65;
+  --color-brand-950: #0d3245;
 
-  /* Accent — brass */
-  --color-gold-50: #fbf6e9;
-  --color-gold-100: #f4e8c6;
-  --color-gold-200: #e9d491;
-  --color-gold-300: #dcbc59;
-  --color-gold-400: #c8a44d;
-  --color-gold-500: #ab8834;
-  --color-gold-600: #8a6b26;
-  --color-gold-700: #6b521e;
+  /* Brand amber — #FBB03B, the "flin" of the logo */
+  --color-gold-50: #fef7ea;
+  --color-gold-100: #fdebc8;
+  --color-gold-200: #fcd991;
+  --color-gold-300: #fbc463;
+  --color-gold-400: #fbb03b;
+  --color-gold-500: #e19420;
+  --color-gold-600: #b77518;
+  --color-gold-700: #8d5a13;
 
-  /* Neutrals — warm paper, not blue-grey */
-  --color-paper: #f8f7f4;
+  /* Neutrals — built on the site's #181818 and its light greys */
+  --color-paper: #f6f7f9;
   --color-surface: #ffffff;
-  --color-ink-50: #f4f4f2;
-  --color-ink-100: #e8e7e3;
-  --color-ink-200: #d6d5cf;
-  --color-ink-300: #b4b2a9;
-  --color-ink-400: #8c8a80;
-  --color-ink-500: #6b6960;
-  --color-ink-600: #514f48;
-  --color-ink-700: #3b3935;
-  --color-ink-800: #26251f;
-  --color-ink-900: #16150f;
+  --color-ink-50: #f7f7f8;
+  --color-ink-100: #ececee;
+  --color-ink-200: #dbdbde;
+  --color-ink-300: #b0b0b6;
+  --color-ink-400: #74747b;
+  --color-ink-500: #6a6a71;
+  --color-ink-600: #4e4e54;
+  --color-ink-700: #38383d;
+  --color-ink-800: #242426;
+  --color-ink-900: #181818;
 
-  /* Semantic */
+  /* Semantic — kept clear of the brand hues so state never reads as branding */
   --color-won: #1a7f5a;
   --color-won-soft: #e4f4ec;
-  --color-lost: #b4453a;
-  --color-lost-soft: #fbeae8;
-  --color-warn: #b5761a;
-  --color-warn-soft: #fdf1de;
-  --color-info: #3b6ca8;
-  --color-info-soft: #e9f0f9;
+  --color-lost: #c0392b;
+  --color-lost-soft: #fbeae7;
+  --color-warn: #b56218;
+  --color-warn-soft: #fdf0e4;
+  --color-info: #17739b;
+  --color-info-soft: #e7f4fa;
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: 'Fraunces', ui-serif, Georgia, serif;

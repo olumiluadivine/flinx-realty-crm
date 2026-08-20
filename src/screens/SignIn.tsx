@@ -7,6 +7,7 @@
 import { useState } from 'react'
 import { useDb, useStore } from '@/data/store'
 import { Avatar, Badge, Button, cx } from '@/components/ui'
+import { Wordmark } from '@/components/AppShell'
 import { ROLE_LABEL } from '@/components/domain'
 import { pluralize } from '@/lib/format'
 
@@ -36,27 +37,27 @@ export default function SignIn() {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
       {/* Brand panel */}
-      <div className="relative flex flex-col justify-between overflow-hidden bg-brand-900 px-6 py-10 text-white sm:px-10 lg:px-14 lg:py-14">
+      <div className="relative flex flex-col justify-between overflow-hidden bg-ink-900 px-6 py-10 text-white sm:px-10 lg:px-14 lg:py-14">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-32 -right-24 h-96 w-96 rounded-full opacity-20"
-          style={{ background: 'radial-gradient(circle, #c8a44d 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(circle, #29abe2 0%, transparent 70%)' }}
         />
         <div className="relative">
-          <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gold-400 font-display text-xl font-semibold text-brand-900">
-              F
-            </span>
-            <div className="leading-tight">
-              <div className="font-display text-lg font-semibold">Flinx Realty Ltd</div>
-              <div className="text-[12px] text-brand-300">294 Borno Way, Alagomeji-Yaba, Lagos</div>
+          <div>
+            <Wordmark className="text-[36px] leading-none" />
+            <div className="mt-1.5 text-[11px] tracking-[0.22em] text-ink-400 uppercase">
+              Realty · Sales CRM
+            </div>
+            <div className="mt-2 text-[12px] text-ink-400">
+              294 Borno Way, Alagomeji-Yaba, Lagos
             </div>
           </div>
 
           <h1 className="mt-10 max-w-lg font-display text-3xl leading-[1.15] font-semibold sm:text-[38px]">
             One place for every contact, every inspection and every sale.
           </h1>
-          <p className="mt-4 max-w-md text-[14.5px] leading-relaxed text-brand-100/85">
+          <p className="mt-4 max-w-md text-[14.5px] leading-relaxed text-ink-200">
             The sales system for Flinx Realty — built around how residential units are actually
             sold in Lagos.
           </p>
@@ -77,17 +78,17 @@ export default function SignIn() {
               ],
             ].map(([title, body]) => (
               <li key={title} className="flex gap-3">
-                <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-400" />
+                <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
                 <span>
                   <span className="block text-[14px] font-medium">{title}</span>
-                  <span className="block text-[13px] leading-relaxed text-brand-200/80">{body}</span>
+                  <span className="block text-[13px] leading-relaxed text-ink-400">{body}</span>
                 </span>
               </li>
             ))}
           </ul>
         </div>
 
-        <p className="relative mt-10 max-w-md text-[11.5px] leading-relaxed text-brand-300/70">
+        <p className="relative mt-10 max-w-md text-[11.5px] leading-relaxed text-ink-400">
           Demo workspace · populated with sample data
         </p>
       </div>

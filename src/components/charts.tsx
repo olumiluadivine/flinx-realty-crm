@@ -2,29 +2,35 @@
  * Charts.
  *
  * Hand-rolled rather than pulled from a library: the set of forms this app needs is
- * small, and building them here keeps the marks consistent and the bundle light
- * enough to ship the whole prototype as one file.
+ * small, and building them here keeps the marks consistent and the bundle light.
  *
- * The categorical palette below was validated for colour-vision separation against a
- * white chart surface (worst adjacent pair ΔE 22.9 normal / 9.1 protan). Two slots sit
- * under 3:1 contrast, so every chart here carries a legend and direct value labels —
- * identity is never colour alone.
+ * The categorical palette below was checked for colour-vision separation against a
+ * white chart surface. Two slots sit under 3:1 contrast, so every chart here carries
+ * a legend and direct value labels — identity is never colour alone.
  */
 import { useState, type ReactNode } from 'react'
 import { cx } from './ui'
 
-/** Fixed order. Never cycled — a fifth series folds into "Other" instead. */
-export const CATEGORICAL = ['#1baf7a', '#eda100', '#2a78d6', '#e34948'] as const
+/**
+ * Fixed order, led by the brand azure. Never cycled — a fifth series folds into
+ * "Other" instead.
+ *
+ * The brand's own #29ABE2 and #FBB03B are too light to carry data on white (the
+ * amber sits at OKLab L 0.81 against a 0.77 ceiling, and 1.85:1 contrast), so the
+ * series use darker steps of the same hues. Adjacent-pair separation: worst CVD
+ * ΔE 11.3, normal-vision ΔE 22.9.
+ */
+export const CATEGORICAL = ['#1b8fc0', '#eda100', '#1baf7a', '#e34948'] as const
 
-/** Single hue for magnitude — one series needs no palette, just the brand. */
-export const MAGNITUDE = '#1c6b58'
+/** Single hue for magnitude — one series needs no palette, just the brand azure. */
+export const MAGNITUDE = '#1b8fc0'
 
 /** Reserved for state. Never reused as "series 4". */
 export const STATUS = {
   good: '#1a7f5a',
-  warning: '#c08a1e',
-  serious: '#d4691f',
-  critical: '#b4453a',
+  warning: '#b56218',
+  serious: '#c2521c',
+  critical: '#c0392b',
 } as const
 
 /** Ordinal severity ramp, one hue, light → dark. */

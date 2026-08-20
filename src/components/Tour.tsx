@@ -108,15 +108,15 @@ export function Tour() {
       <button
         onClick={() => setTourStep(0)}
         className={cx(
-          'fixed right-4 bottom-20 z-40 flex items-center gap-2 rounded-full bg-brand-800 py-2.5 pr-4 pl-3.5 text-[13px] font-medium text-white shadow-lg',
-          'transition-transform hover:scale-[1.02] hover:bg-brand-900',
+          'fixed right-4 bottom-20 z-40 flex items-center gap-2 rounded-full bg-brand-600 py-2.5 pr-4 pl-3.5 text-[13px] font-medium text-white shadow-lg',
+          'transition-transform hover:scale-[1.02] hover:bg-brand-700',
           // Only on small screens. On desktop the launcher lives in the header, where
           // it cannot sit on top of a row action or a card heading.
           'lg:hidden',
         )}
         title="Take a short tour of the system"
       >
-        <span aria-hidden className="text-gold-300">
+        <span aria-hidden className="text-white/80">
           ▶
         </span>
         Take a tour
@@ -126,17 +126,17 @@ export function Tour() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-3 lg:right-6 lg:bottom-6 lg:left-auto lg:w-[400px] lg:px-0 lg:pb-0">
-      <div className="rounded-2xl border border-brand-700 bg-brand-900 p-4 text-white shadow-2xl">
+      <div className="rounded-2xl border border-ink-800 bg-ink-900 p-4 text-white shadow-2xl">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-gold-400 px-2 py-0.5 font-mono text-[11px] font-semibold text-brand-900">
+            <span className="rounded-full bg-brand-500 px-2 py-0.5 font-mono text-[11px] font-semibold text-ink-900">
               {step + 1}/{TOUR.length}
             </span>
-            <span className="text-[11px] text-brand-300">Product tour</span>
+            <span className="text-[11px] text-ink-400">Product tour</span>
           </div>
           <button
             onClick={() => setTourStep(null)}
-            className="text-[12px] text-brand-300 hover:text-white"
+            className="text-[12px] text-ink-400 hover:text-white"
             aria-label="End tour"
           >
             End ✕
@@ -144,14 +144,14 @@ export function Tour() {
         </div>
 
         <h3 className="mt-2.5 font-display text-[17px] leading-snug font-semibold">{current!.title}</h3>
-        <p className="mt-1.5 text-[13px] leading-relaxed text-brand-100/85">{current!.body}</p>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-ink-200">{current!.body}</p>
         {current!.say && (
-          <p className="mt-2.5 border-l-2 border-gold-400 pl-2.5 text-[12px] leading-relaxed text-gold-200/90 italic">
+          <p className="mt-2.5 border-l-2 border-brand-500 pl-2.5 text-[12px] leading-relaxed text-brand-200 italic">
             {current!.say}
           </p>
         )}
         {current!.viewAs && (
-          <p className="mt-2.5 text-[11.5px] text-brand-300">
+          <p className="mt-2.5 text-[11.5px] text-ink-400">
             Signed in as <span className="font-medium text-white">{viewer.full_name}</span>
           </p>
         )}
@@ -160,7 +160,7 @@ export function Tour() {
           <Button
             size="sm"
             variant="ghost"
-            className="border-brand-700 text-brand-200 hover:bg-brand-800 hover:text-white"
+            className="border-ink-700 text-ink-300 hover:bg-ink-800 hover:text-white"
             onClick={() => setTourStep(Math.max(0, step - 1))}
             disabled={step === 0}
           >
@@ -169,7 +169,7 @@ export function Tour() {
           {step < TOUR.length - 1 ? (
             <Button
               size="sm"
-              className="ml-auto border-gold-400 bg-gold-400 text-brand-900 hover:bg-gold-300"
+              className="ml-auto border-brand-500 bg-brand-500 text-white hover:bg-brand-400"
               onClick={() => setTourStep(step + 1)}
             >
               Next →
@@ -177,7 +177,7 @@ export function Tour() {
           ) : (
             <Button
               size="sm"
-              className="ml-auto border-gold-400 bg-gold-400 text-brand-900 hover:bg-gold-300"
+              className="ml-auto border-brand-500 bg-brand-500 text-white hover:bg-brand-400"
               onClick={() => setTourStep(null)}
             >
               Finish

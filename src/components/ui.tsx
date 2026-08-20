@@ -23,7 +23,7 @@ export function Card({
         // min-w-0 matters: a grid or flex item defaults to min-width:auto, so a card
         // holding a wide table would otherwise force its whole track wider than the
         // phone screen. Every horizontal-overflow bug in this app traced back to it.
-        'min-w-0 rounded-[--radius-card] border border-ink-100 bg-surface shadow-[0_1px_2px_rgba(22,21,15,0.04)]',
+        'min-w-0 rounded-[--radius-card] border border-ink-100 bg-surface shadow-[0_1px_2px_rgba(24,24,24,0.05)]',
         padded && 'p-4 sm:p-5',
         className,
       )}
@@ -98,10 +98,11 @@ export function Button({
   size?: 'sm' | 'md'
 } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
   const variants: Record<ButtonVariant, string> = {
+    // brand-700 rather than the brand's own #29ABE2: white on that sits at 2.62:1.
     primary: 'bg-brand-700 text-white hover:bg-brand-800 border-brand-700',
     secondary: 'bg-surface text-ink-800 hover:bg-ink-50 border-ink-200',
     ghost: 'bg-transparent text-ink-600 hover:bg-ink-50 border-transparent',
-    danger: 'bg-lost-soft text-lost hover:bg-[#f6dcd9] border-[#f0cdc9]',
+    danger: 'bg-lost-soft text-lost hover:bg-[#f7dcd8] border-[#f2cec9]',
   }
   return (
     <button
@@ -168,7 +169,7 @@ export function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
       className={cx(inputClass, 'appearance-none bg-[length:16px] pr-9', props.className)}
       style={{
         backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236b6960' stroke-width='1.6'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E\")",
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236a6a71' stroke-width='1.6'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E\")",
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'right 10px center',
         ...props.style,
@@ -230,9 +231,9 @@ const toneClass: Record<Tone, string> = {
   neutral: 'bg-ink-50 text-ink-600 ring-ink-200/70',
   brand: 'bg-brand-50 text-brand-700 ring-brand-200',
   won: 'bg-won-soft text-won ring-[#bfe3d1]',
-  lost: 'bg-lost-soft text-lost ring-[#f0cdc9]',
-  warn: 'bg-warn-soft text-warn ring-[#f2ddb9]',
-  info: 'bg-info-soft text-info ring-[#c9daef]',
+  lost: 'bg-lost-soft text-lost ring-[#f2cec9]',
+  warn: 'bg-warn-soft text-warn ring-[#f4d9bb]',
+  info: 'bg-info-soft text-info ring-[#c5e3f2]',
   gold: 'bg-gold-50 text-gold-700 ring-gold-200',
 }
 
@@ -502,9 +503,9 @@ export function Note({ children, tone = 'brand' }: { children: ReactNode; tone?:
     neutral: 'border-ink-200 bg-ink-50 text-ink-600',
     brand: 'border-brand-100 bg-brand-50 text-brand-800',
     won: 'border-[#bfe3d1] bg-won-soft text-won',
-    lost: 'border-[#f0cdc9] bg-lost-soft text-lost',
-    warn: 'border-[#f2ddb9] bg-warn-soft text-warn',
-    info: 'border-[#c9daef] bg-info-soft text-info',
+    lost: 'border-[#f2cec9] bg-lost-soft text-lost',
+    warn: 'border-[#f4d9bb] bg-warn-soft text-warn',
+    info: 'border-[#c5e3f2] bg-info-soft text-info',
     gold: 'border-gold-200 bg-gold-50 text-gold-700',
   }
   return (
