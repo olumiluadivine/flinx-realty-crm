@@ -84,7 +84,7 @@ export function PageHeader({
 
 /* --------------------------------- controls -------------------------------- */
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'onDark' | 'onDarkGhost'
 
 export function Button({
   children,
@@ -103,6 +103,13 @@ export function Button({
     secondary: 'bg-surface text-ink-800 hover:bg-ink-50 border-ink-200',
     ghost: 'bg-transparent text-ink-600 hover:bg-ink-50 border-transparent',
     danger: 'bg-lost-soft text-lost hover:bg-[#f7dcd8] border-[#f2cec9]',
+    // For controls sitting on the near-black surfaces. These exist as variants
+    // rather than className overrides because two Tailwind utilities of equal
+    // specificity are resolved by stylesheet order, not by the order they appear
+    // in the class attribute — an override is a coin flip, and this one landed on
+    // white text over a white button.
+    onDark: 'bg-brand-500 text-ink-900 hover:bg-brand-400 border-brand-500',
+    onDarkGhost: 'bg-transparent text-ink-300 hover:bg-ink-800 hover:text-white border-ink-700',
   }
   return (
     <button

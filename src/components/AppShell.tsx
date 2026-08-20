@@ -35,7 +35,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <nav className="scroll-slim flex-1 overflow-y-auto px-3 pb-4">
           {grouped.map(({ group, items: groupItems }) => (
             <div key={group} className="mb-5">
-              <div className="mb-1.5 px-2.5 text-[10.5px] font-semibold tracking-[0.13em] text-ink-400 uppercase">
+              <div className="mb-1.5 px-2.5 text-[10.5px] font-semibold tracking-[0.13em] text-ink-300 uppercase">
                 {GROUP_LABEL[group]}
               </div>
               <div className="flex flex-col gap-0.5">
@@ -80,7 +80,7 @@ function Brandmark() {
   return (
     <div className="px-5 py-5">
       <Wordmark className="text-[27px] leading-none" />
-      <div className="mt-1.5 text-[10px] tracking-[0.22em] text-ink-400 uppercase">Realty · Sales CRM</div>
+      <div className="mt-1.5 text-[10px] tracking-[0.22em] text-ink-300 uppercase">Realty · Sales CRM</div>
     </div>
   )
 }
@@ -114,7 +114,7 @@ function DemoDataFooter() {
         <span className="h-1.5 w-1.5 rounded-full bg-gold-400" aria-hidden />
         Demo workspace
       </div>
-      <p className="mt-1 text-[11px] leading-relaxed text-ink-400">
+      <p className="mt-1 text-[11px] leading-relaxed text-ink-300">
         Sample data. Anything you change here is yours alone.
       </p>
       <button
@@ -336,13 +336,13 @@ function MobileMenu({
           <Avatar name={viewer.full_name} hue={viewer.hue} size={30} />
           <div className="min-w-0 leading-tight">
             <div className="truncate text-[13px] font-medium text-white">{viewer.full_name}</div>
-            <div className="text-[11px] text-ink-400">{ROLE_LABEL[viewer.role]}</div>
+            <div className="text-[11px] text-ink-300">{ROLE_LABEL[viewer.role]}</div>
           </div>
         </div>
         <nav className="scroll-slim flex-1 overflow-y-auto px-3 pb-4">
           {items.map(({ group, items: groupItems }) => (
             <div key={group} className="mb-4">
-              <div className="mb-1.5 px-2.5 text-[10.5px] font-semibold tracking-[0.13em] text-ink-400 uppercase">
+              <div className="mb-1.5 px-2.5 text-[10.5px] font-semibold tracking-[0.13em] text-ink-300 uppercase">
                 {GROUP_LABEL[group]}
               </div>
               <div className="flex flex-col gap-0.5">

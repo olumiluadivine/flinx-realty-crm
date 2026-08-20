@@ -46,10 +46,10 @@ export default function SignIn() {
         <div className="relative">
           <div>
             <Wordmark className="text-[36px] leading-none" />
-            <div className="mt-1.5 text-[11px] tracking-[0.22em] text-ink-400 uppercase">
+            <div className="mt-1.5 text-[11px] tracking-[0.22em] text-ink-300 uppercase">
               Realty · Sales CRM
             </div>
-            <div className="mt-2 text-[12px] text-ink-400">
+            <div className="mt-2 text-[12px] text-ink-300">
               294 Borno Way, Alagomeji-Yaba, Lagos
             </div>
           </div>
@@ -81,14 +81,14 @@ export default function SignIn() {
                 <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
                 <span>
                   <span className="block text-[14px] font-medium">{title}</span>
-                  <span className="block text-[13px] leading-relaxed text-ink-400">{body}</span>
+                  <span className="block text-[13px] leading-relaxed text-ink-300">{body}</span>
                 </span>
               </li>
             ))}
           </ul>
         </div>
 
-        <p className="relative mt-10 max-w-md text-[11.5px] leading-relaxed text-ink-400">
+        <p className="relative mt-10 max-w-md text-[11.5px] leading-relaxed text-ink-300">
           Demo workspace · populated with sample data
         </p>
       </div>

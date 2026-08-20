@@ -132,11 +132,11 @@ export function Tour() {
             <span className="rounded-full bg-brand-500 px-2 py-0.5 font-mono text-[11px] font-semibold text-ink-900">
               {step + 1}/{TOUR.length}
             </span>
-            <span className="text-[11px] text-ink-400">Product tour</span>
+            <span className="text-[11px] text-ink-300">Product tour</span>
           </div>
           <button
             onClick={() => setTourStep(null)}
-            className="text-[12px] text-ink-400 hover:text-white"
+            className="text-[12px] text-ink-300 hover:text-white"
             aria-label="End tour"
           >
             End ✕
@@ -151,7 +151,7 @@ export function Tour() {
           </p>
         )}
         {current!.viewAs && (
-          <p className="mt-2.5 text-[11.5px] text-ink-400">
+          <p className="mt-2.5 text-[11.5px] text-ink-300">
             Signed in as <span className="font-medium text-white">{viewer.full_name}</span>
           </p>
         )}
@@ -159,8 +159,7 @@ export function Tour() {
         <div className="mt-3.5 flex items-center gap-2">
           <Button
             size="sm"
-            variant="ghost"
-            className="border-ink-700 text-ink-300 hover:bg-ink-800 hover:text-white"
+            variant="onDarkGhost"
             onClick={() => setTourStep(Math.max(0, step - 1))}
             disabled={step === 0}
           >
@@ -169,7 +168,8 @@ export function Tour() {
           {step < TOUR.length - 1 ? (
             <Button
               size="sm"
-              className="ml-auto border-brand-500 bg-brand-500 text-white hover:bg-brand-400"
+              variant="onDark"
+              className="ml-auto"
               onClick={() => setTourStep(step + 1)}
             >
               Next →
@@ -177,7 +177,8 @@ export function Tour() {
           ) : (
             <Button
               size="sm"
-              className="ml-auto border-brand-500 bg-brand-500 text-white hover:bg-brand-400"
+              variant="onDark"
+              className="ml-auto"
               onClick={() => setTourStep(null)}
             >
               Finish
