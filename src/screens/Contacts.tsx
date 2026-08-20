@@ -11,6 +11,9 @@ import { useScopedData, activitiesForContact, channelsFor, dealsForContact, prop
 import { contactName, dealNgnMinor } from '@/data/derive'
 import { useStore } from '@/data/store'
 import { checkManualDuplicate, type DedupeMatch } from '@/data/import/dedupe'
+import { SOCIAL_KINDS, isSocialKind, type ChannelKind, type SocialKind } from '@/data/schema'
+import { SOCIAL_META, socialDisplay, socialUrl } from '@/data/social'
+import { LifecycleTrack, LifecycleJourney } from '@/components/Lifecycle'
 import { contactsToCsv, contactsToVCard, downloadText } from '@/data/import/export'
 import { formatPhone } from '@/data/phone'
 import { formatMoneyCompact } from '@/data/money'
@@ -303,14 +306,29 @@ function ContactDetail({ contact, onClose }: { contact: Contact | undefined; onC
   const { db } = useScopedData()
   const setStatusOverride = useStore((s) => s.setStatusOverride)
   const [tab, setTab] = useState<'timeline' | 'details'>('timeline')
+  const [editing, setEditing] = useState(false)
 
   if (!contact) return null
 
   const channels = channelsFor(db, contact.id)
+  const reachable = channels.filter((ch) => !isSocialKind(ch.kind))
+  const socials = channels.filter((ch) => isSocialKind(ch.kind))
   const activities = activitiesForContact(db, contact.id)
   const deals = dealsForContact(db, contact.id)
   const owner = userById(db, contact.owner_user_id)
   const batch = db.import_batches.find((b) => b.id === contact.import_batch_id)
+
+  // The lifecycle is shown against the deal that currently defines the status:
+  // the most advanced open one, falling back to the most recent.
+  const stageById = new Map(db.pipeline_stages.map((st) => [st.id, st]))
+  const openDeals = deals.filter((d) => {
+    const st = stageById.get(d.stage_id)
+    return st && !st.is_won && !st.is_lost
+  })
+  const leadDeal =
+    openDeals.sort(
+      (a, b) => (stageById.get(b.stage_id)?.sort_order ?? 0) - (stageById.get(a.stage_id)?.sort_order ?? 0),
+    )[0] ?? deals[0]
 
   return (
     <Drawer
@@ -323,18 +341,55 @@ function ContactDetail({ contact, onClose }: { contact: Contact | undefined; onC
         <StatusBadge contact={contact} />
         <SourceBadge contact={contact} />
         {contact.do_not_contact && <Badge tone="lost">Do not contact</Badge>}
-        <span className="ml-auto text-[12px] text-ink-400">Added {formatDate(contact.created_at)}</span>
+        <Button size="sm" className="ml-auto" onClick={() => setEditing(true)}>
+          Edit contact
+        </Button>
       </div>
+
+      {/* Where this person sits in the sales lifecycle. */}
+      <Card className="mt-4">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h3 className="text-[13px] font-semibold text-ink-800">Lifecycle</h3>
+          {leadDeal && (
+            <span className="text-[11.5px] text-ink-400">
+              {propertyById(db, leadDeal.property_id)?.estate ?? 'No unit selected'}
+            </span>
+          )}
+        </div>
+        {leadDeal ? (
+          <LifecycleTrack db={db} stageId={leadDeal.stage_id} deal={leadDeal} />
+        ) : (
+          <>
+            <LifecycleTrack
+              db={db}
+              stageId={
+                db.pipeline_stages.find(
+                  (st) => st.name === (contact.lifecycle_status_override ?? contact.lifecycle_status),
+                )?.id ?? [...db.pipeline_stages].sort((a, b) => a.sort_order - b.sort_order)[0].id
+              }
+            />
+            <p className="mt-2 text-[11.5px] text-ink-400">
+              No deal open yet — this reflects the status set on the contact.
+            </p>
+          </>
+        )}
+        {leadDeal && (
+          <div className="mt-4 border-t border-ink-100 pt-3">
+            <h4 className="mb-2 text-[12px] font-medium text-ink-600">How they got here</h4>
+            <LifecycleJourney db={db} deal={leadDeal} />
+          </div>
+        )}
+      </Card>
 
       {/* Channels — the reason they live in their own table */}
       <Card className="mt-4">
         <div className="mb-2 flex items-center justify-between">
           <h3 className="text-[13px] font-semibold text-ink-800">
-            Reachable on {pluralize(channels.length, 'number or address')}
+            Reachable on {pluralize(reachable.length, 'number or address', 'numbers and addresses')}
           </h3>
         </div>
         <ul className="divide-y divide-ink-100">
-          {channels.map((ch) => (
+          {reachable.map((ch) => (
             <li key={ch.id} className="flex items-center gap-2 py-2 first:pt-0 last:pb-0">
               <Badge tone={ch.kind === 'email' ? 'info' : ch.kind === 'whatsapp' ? 'won' : 'neutral'}>
                 {ch.label ?? ch.kind}
@@ -352,6 +407,44 @@ function ContactDetail({ contact, onClose }: { contact: Contact | undefined; onC
           Imports match against all of these, so the same number written differently is recognised
           as the same person.
         </p>
+      </Card>
+
+      <Card className="mt-3">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h3 className="text-[13px] font-semibold text-ink-800">Social profiles</h3>
+          {socials.length > 0 && (
+            <span className="text-[11.5px] text-ink-400">{pluralize(socials.length, 'profile')}</span>
+          )}
+        </div>
+        {socials.length === 0 ? (
+          <p className="text-[12.5px] text-ink-400">
+            None linked yet. Add one from{' '}
+            <button onClick={() => setEditing(true)} className="font-medium text-brand-700 underline">
+              Edit contact
+            </button>
+            .
+          </p>
+        ) : (
+          <ul className="flex flex-wrap gap-1.5">
+            {socials.map((ch) => {
+              const kind = ch.kind as SocialKind
+              return (
+                <li key={ch.id}>
+                  <a
+                    href={socialUrl(kind, ch.value_normalized)}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-surface px-2.5 py-1 text-[12.5px] text-ink-700 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800"
+                  >
+                    <span className="font-medium">{SOCIAL_META[kind].label}</span>
+                    <span className="text-ink-500">{socialDisplay(kind, ch.value_normalized)}</span>
+                    <span aria-hidden className="text-[10px] text-ink-400">↗</span>
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </Card>
 
       {/* Status control */}
@@ -490,7 +583,274 @@ function ContactDetail({ contact, onClose }: { contact: Contact | undefined; onC
           </Card>
         </div>
       )}
+
+      <EditContactModal
+        open={editing}
+        onClose={() => setEditing(false)}
+        contact={contact}
+      />
     </Drawer>
+  )
+}
+
+/* ------------------------------ editing ----------------------------------- */
+
+/**
+ * Editing a contact.
+ *
+ * Names, company and notes are a straight patch. Channels are handled one at a time
+ * through their own actions, because each carries a normalised dedupe key that has
+ * to be recomputed rather than edited — and because removing the primary number has
+ * to promote a replacement rather than leave the record unreachable.
+ */
+function EditContactModal({
+  open,
+  onClose,
+  contact,
+}: {
+  open: boolean
+  onClose: () => void
+  contact: Contact
+}) {
+  const { db, scope } = useScopedData()
+  const { updateContact, addChannel, updateChannel, removeChannel, setPrimaryChannel } = useStore()
+
+  const [form, setForm] = useState({
+    first_name: contact.first_name,
+    last_name: contact.last_name,
+    company: contact.company ?? '',
+    notes: contact.notes ?? '',
+    source: contact.source,
+    source_detail: contact.source_detail ?? '',
+    owner_user_id: contact.owner_user_id,
+    do_not_contact: contact.do_not_contact,
+  })
+  const [newKind, setNewKind] = useState<ChannelKind>('phone')
+  const [newValue, setNewValue] = useState('')
+  const [newLabel, setNewLabel] = useState('')
+  const [warning, setWarning] = useState<string | null>(null)
+
+  // Re-seed the form whenever a different contact is opened.
+  const [loadedFor, setLoadedFor] = useState(contact.id)
+  if (loadedFor !== contact.id) {
+    setLoadedFor(contact.id)
+    setForm({
+      first_name: contact.first_name,
+      last_name: contact.last_name,
+      company: contact.company ?? '',
+      notes: contact.notes ?? '',
+      source: contact.source,
+      source_detail: contact.source_detail ?? '',
+      owner_user_id: contact.owner_user_id,
+      do_not_contact: contact.do_not_contact,
+    })
+  }
+
+  if (!open) return null
+
+  const channels = channelsFor(db, contact.id)
+  const assignable = db.users.filter((u) => scope.userIds.has(u.id) && u.role !== 'super_admin')
+
+  const save = () => {
+    if (!form.first_name.trim()) return
+    updateContact(contact.id, {
+      first_name: form.first_name.trim(),
+      last_name: form.last_name.trim(),
+      company: form.company.trim() || null,
+      notes: form.notes.trim() || null,
+      source: form.source,
+      source_detail: form.source_detail.trim() || null,
+      owner_user_id: form.owner_user_id,
+      do_not_contact: form.do_not_contact,
+    })
+    onClose()
+  }
+
+  const addNew = () => {
+    const value = newValue.trim()
+    if (!value) return
+    // A new number or address might already belong to somebody else — say so rather
+    // than quietly creating a second route to the same person.
+    if (!isSocialKind(newKind)) {
+      const dup = checkManualDuplicate(db, [{ kind: newKind, value }])
+      if (dup && dup.contactId !== contact.id) {
+        setWarning(`${dup.matchedValue} is already on file against ${dup.contactName}. Added here anyway.`)
+      } else {
+        setWarning(null)
+      }
+    }
+    addChannel(contact.id, { kind: newKind, value, label: newLabel.trim() || null })
+    setNewValue('')
+    setNewLabel('')
+  }
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={`Edit ${contactName(contact)}`}
+      width="max-w-2xl"
+      footer={
+        <>
+          <Button onClick={onClose}>Close</Button>
+          <Button variant="primary" onClick={save} disabled={!form.first_name.trim()}>
+            Save changes
+          </Button>
+        </>
+      }
+    >
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="First name" required>
+          <Input value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
+        </Field>
+        <Field label="Last name">
+          <Input value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
+        </Field>
+        <Field label="Company">
+          <Input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
+        </Field>
+        <Field label="Owner">
+          <Select
+            value={form.owner_user_id}
+            onChange={(e) => setForm({ ...form, owner_user_id: e.target.value })}
+          >
+            {assignable.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.full_name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Source">
+          <Select
+            value={form.source}
+            onChange={(e) => setForm({ ...form, source: e.target.value as ContactSource })}
+          >
+            {Object.entries(SOURCE_LABEL).map(([k, v]) => (
+              <option key={k} value={k}>
+                {v}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Campaign / detail">
+          <Input
+            value={form.source_detail}
+            onChange={(e) => setForm({ ...form, source_detail: e.target.value })}
+          />
+        </Field>
+        <div className="sm:col-span-2">
+          <Field label="Notes">
+            <Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+          </Field>
+        </div>
+      </div>
+
+      <label className="mt-3 flex items-center gap-2 text-[13px] text-ink-700">
+        <input
+          type="checkbox"
+          checked={form.do_not_contact}
+          onChange={(e) => setForm({ ...form, do_not_contact: e.target.checked })}
+          className="h-4 w-4 accent-[--color-brand-600]"
+        />
+        Do not contact
+      </label>
+
+      {/* Channels are saved as you go, so they are separated from the form above. */}
+      <div className="mt-5 border-t border-ink-100 pt-4">
+        <h3 className="text-[13px] font-semibold text-ink-800">Numbers, addresses & profiles</h3>
+        <p className="mt-0.5 mb-2.5 text-[12px] text-ink-400">
+          Changes here save immediately.
+        </p>
+
+        <ul className="divide-y divide-ink-100">
+          {channels.map((ch) => {
+            const social = isSocialKind(ch.kind)
+            return (
+              <li key={ch.id} className="flex flex-wrap items-center gap-2 py-2 first:pt-0">
+                <Badge tone={social ? 'brand' : ch.kind === 'email' ? 'info' : 'neutral'}>
+                  {social ? SOCIAL_META[ch.kind as SocialKind].label : (ch.label ?? ch.kind)}
+                </Badge>
+                <Input
+                  value={ch.value}
+                  onChange={(e) => updateChannel(ch.id, { value: e.target.value })}
+                  className="min-w-[160px] flex-1"
+                  aria-label={`Value for ${ch.label ?? ch.kind}`}
+                />
+                {!social && (
+                  <button
+                    onClick={() => setPrimaryChannel(ch.id)}
+                    disabled={ch.is_primary}
+                    className={cx(
+                      'rounded px-2 py-1 text-[11.5px] font-medium',
+                      ch.is_primary ? 'text-ink-400' : 'text-brand-700 hover:bg-brand-50',
+                    )}
+                  >
+                    {ch.is_primary ? 'primary' : 'make primary'}
+                  </button>
+                )}
+                <button
+                  onClick={() => removeChannel(ch.id)}
+                  className="rounded px-2 py-1 text-[11.5px] font-medium text-lost hover:bg-lost-soft"
+                  aria-label={`Remove ${ch.value}`}
+                >
+                  Remove
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+
+        <div className="mt-3 grid gap-2 sm:grid-cols-[130px_1fr_auto]">
+          <Select
+            value={newKind}
+            onChange={(e) => setNewKind(e.target.value as ChannelKind)}
+            aria-label="Type of contact detail to add"
+          >
+            <option value="phone">Phone</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="email">Email</option>
+            {SOCIAL_KINDS.map((k) => (
+              <option key={k} value={k}>
+                {SOCIAL_META[k].label}
+              </option>
+            ))}
+          </Select>
+          <Input
+            value={newValue}
+            onChange={(e) => setNewValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addNew()}
+            placeholder={
+              isSocialKind(newKind)
+                ? `${SOCIAL_META[newKind as SocialKind].base}handle — or just the handle`
+                : newKind === 'email'
+                  ? 'name@example.com'
+                  : '0803 123 4567'
+            }
+            aria-label="New contact detail"
+          />
+          <Button onClick={addNew} disabled={!newValue.trim()}>
+            Add
+          </Button>
+        </div>
+        {!isSocialKind(newKind) && (
+          <div className="mt-2">
+            <Input
+              value={newLabel}
+              onChange={(e) => setNewLabel(e.target.value)}
+              placeholder="Label — Mobile, Work, Personal (optional)"
+              aria-label="Label for the new contact detail"
+            />
+          </div>
+        )}
+
+        {warning && (
+          <div className="mt-3">
+            <Note tone="warn">{warning}</Note>
+          </div>
+        )}
+      </div>
+    </Modal>
   )
 }
 

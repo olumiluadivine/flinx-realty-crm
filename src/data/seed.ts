@@ -12,6 +12,7 @@
  */
 import { toMinor, toNgnMinor } from './money'
 import { normalizeEmail, normalizePhone } from './phone'
+import { normalizeHandle } from './social'
 import type {
   Activity,
   ActivityType,
@@ -414,6 +415,45 @@ export function buildSeed(now = new Date()): Database {
         value_normalized: value,
         is_primary: e === 0,
         label: e === 0 ? 'Personal' : 'Work',
+      })
+    }
+
+    // Social profiles. Plenty of Lagos buyers are reached on Instagram or WhatsApp
+    // long before anyone has their email, so a good share of the book carries one.
+    const handleBase = `${first}.${last}`.toLowerCase()
+    if (chance(0.42)) {
+      const handle = chance(0.5) ? handleBase : `${first.toLowerCase()}_${last.toLowerCase()}`
+      contact_channels.push({
+        id: `ch-${contact_channels.length + 1}`,
+        contact_id: id,
+        kind: 'instagram',
+        value: `@${handle}`,
+        value_normalized: normalizeHandle('instagram', handle),
+        is_primary: true,
+        label: null,
+      })
+    }
+    if (chance(0.3)) {
+      const handle = `${first.toLowerCase()}-${last.toLowerCase()}`
+      contact_channels.push({
+        id: `ch-${contact_channels.length + 1}`,
+        contact_id: id,
+        kind: 'linkedin',
+        value: `https://linkedin.com/in/${handle}`,
+        value_normalized: normalizeHandle('linkedin', handle),
+        is_primary: true,
+        label: null,
+      })
+    }
+    if (chance(0.14)) {
+      contact_channels.push({
+        id: `ch-${contact_channels.length + 1}`,
+        contact_id: id,
+        kind: 'x',
+        value: `@${first.toLowerCase()}${randInt(10, 99)}`,
+        value_normalized: normalizeHandle('x', `${first.toLowerCase()}${randInt(10, 99)}`),
+        is_primary: true,
+        label: null,
       })
     }
   }

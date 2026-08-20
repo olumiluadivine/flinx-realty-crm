@@ -11,7 +11,7 @@
  * paper (R-CON-3).
  */
 import { normalizeChannel } from '../phone'
-import type { ChannelKind, Contact, Database, Id } from '../schema'
+import { isSocialKind, type ChannelKind, type Contact, type Database, type Id } from '../schema'
 import type { ParsedRow } from './parse'
 
 export type RowOutcome = 'create' | 'merge' | 'fail'
@@ -48,6 +48,10 @@ export function buildChannelIndex(db: Database): Map<string, Contact> {
   const contactById = new Map(db.contacts.map((c) => [c.id, c]))
   const index = new Map<string, Contact>()
   for (const channel of db.contact_channels) {
+    // Social handles are reachability, not identity — they never take part in a
+    // match, so they are kept out of the index entirely rather than relied on
+    // being filtered later.
+    if (isSocialKind(channel.kind)) continue
     const contact = contactById.get(channel.contact_id)
     if (!contact) continue
     if (!index.has(channel.value_normalized)) index.set(channel.value_normalized, contact)

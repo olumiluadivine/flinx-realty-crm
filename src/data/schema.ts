@@ -68,7 +68,21 @@ export interface Contact {
   updated_at: Iso
 }
 
-export type ChannelKind = 'phone' | 'email' | 'whatsapp'
+export type ChannelKind = 'phone' | 'email' | 'whatsapp' | SocialKind
+
+/**
+ * Social profiles live in the same child table as phones and emails — they are just
+ * another way to reach the person. They are deliberately *not* used for
+ * de-duplication: two people can share a work email, but a handle is weaker still,
+ * and matching on it would merge records that only look related.
+ */
+export type SocialKind = 'instagram' | 'linkedin' | 'facebook' | 'x'
+
+export const SOCIAL_KINDS: SocialKind[] = ['instagram', 'linkedin', 'facebook', 'x']
+
+export function isSocialKind(kind: ChannelKind): kind is SocialKind {
+  return (SOCIAL_KINDS as string[]).includes(kind)
+}
 
 /** `contact_channels` — vCard routinely carries several numbers per person (R-CON-5). */
 export interface ContactChannel {

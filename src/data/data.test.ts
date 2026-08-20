@@ -19,7 +19,9 @@ import {
   totalSoldNgnMinor,
 } from './derive'
 import { parseCsv, parseVCard, splitCsvLine } from './import/parse'
-import { checkManualDuplicate, planImport } from './import/dedupe'
+import { normalizeHandle, socialUrl, socialDisplay } from './social'
+import { isSocialKind } from './schema'
+import { buildChannelIndex, checkManualDuplicate, planImport } from './import/dedupe'
 import type { Database } from './schema'
 
 const db: Database = buildSeed(new Date('2026-08-19T10:00:00Z'))
@@ -365,5 +367,76 @@ describe('the seed itself', () => {
 
   it('every closed deal has a value, because the stage requires one (R-PIP-4)', () => {
     expect(db.deals.filter((d) => isWon(db, d)).every((d) => d.amount_minor > 0)).toBe(true)
+  })
+})
+
+describe('social profiles', () => {
+  it('reduces every form people paste to the bare handle', () => {
+    for (const input of [
+      'https://instagram.com/ada.okeke',
+      'https://www.instagram.com/ada.okeke/',
+      'instagram.com/ada.okeke',
+      '@ada.okeke',
+      'ada.okeke',
+      'HTTPS://Instagram.com/Ada.Okeke?igshid=abc',
+    ]) {
+      expect(normalizeHandle('instagram', input)).toBe('ada.okeke')
+    }
+  })
+
+  it('strips the platform path segment LinkedIn puts in its URLs', () => {
+    expect(normalizeHandle('linkedin', 'https://linkedin.com/in/ada-okeke')).toBe('ada-okeke')
+    expect(normalizeHandle('linkedin', 'in/ada-okeke')).toBe('ada-okeke')
+  })
+
+  it('rebuilds a working profile link, and displays it the way the platform does', () => {
+    expect(socialUrl('instagram', 'ada.okeke')).toBe('https://instagram.com/ada.okeke')
+    expect(socialUrl('linkedin', 'ada-okeke')).toBe('https://linkedin.com/in/ada-okeke')
+    expect(socialDisplay('instagram', 'ada.okeke')).toBe('@ada.okeke')
+    expect(socialDisplay('linkedin', 'ada-okeke')).toBe('ada-okeke')
+  })
+
+  it('never lets a social handle cause a merge', () => {
+    const social = db.contact_channels.find((c) => isSocialKind(c.kind))
+    expect(social).toBeDefined()
+    // The same handle arriving as a phone/email value must not find that contact.
+    const index = buildChannelIndex(db)
+    expect(index.get(social!.value_normalized)).toBeUndefined()
+  })
+
+  it('seeds social profiles across a useful share of the book', () => {
+    const withSocial = new Set(
+      db.contact_channels.filter((c) => isSocialKind(c.kind)).map((c) => c.contact_id),
+    )
+    expect(withSocial.size).toBeGreaterThan(20)
+  })
+})
+
+describe('overdue is measured in whole days past the due date', () => {
+  it('an instalment due today is not yet overdue', () => {
+    const target: Database = structuredClone(db)
+    const deal = target.deals.find((d) => isWon(target, d))!
+    target.deal_payments = target.deal_payments.filter((p) => p.deal_id !== deal.id)
+    target.deal_schedule = target.deal_schedule.filter((s) => s.deal_id !== deal.id)
+    const today = new Date('2026-08-19T10:00:00Z')
+    target.deal_schedule.push({
+      id: 'ds-today', deal_id: deal.id, due_on: '2026-08-19',
+      amount_minor: deal.amount_minor, currency: deal.currency, sequence: 0,
+    })
+    expect(overdueSchedule(target, [deal], today)).toHaveLength(0)
+  })
+
+  it('the same instalment one day later is overdue by exactly one day', () => {
+    const target: Database = structuredClone(db)
+    const deal = target.deals.find((d) => isWon(target, d))!
+    target.deal_payments = target.deal_payments.filter((p) => p.deal_id !== deal.id)
+    target.deal_schedule = target.deal_schedule.filter((s) => s.deal_id !== deal.id)
+    target.deal_schedule.push({
+      id: 'ds-yesterday', deal_id: deal.id, due_on: '2026-08-18',
+      amount_minor: deal.amount_minor, currency: deal.currency, sequence: 0,
+    })
+    const out = overdueSchedule(target, [deal], new Date('2026-08-19T10:00:00Z'))
+    expect(out).toHaveLength(1)
+    expect(out[0].daysOverdue).toBe(1)
   })
 })

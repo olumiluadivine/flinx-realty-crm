@@ -35,7 +35,7 @@ import type {
 } from './schema'
 
 /** Bump to invalidate persisted demo data after a schema change. */
-const STORE_VERSION = 5
+const STORE_VERSION = 6
 const STORAGE_KEY = 'flinx-crm-demo'
 
 function nextId(prefix: string, existing: { id: Id }[]): Id {
@@ -93,6 +93,13 @@ interface AppState {
   createContact: (input: NewContactInput) => Id
   updateContact: (id: Id, patch: Partial<Contact>) => void
   setStatusOverride: (id: Id, value: string | null) => void
+
+  /** Add a way of reaching a contact — a number, an address or a social profile. */
+  addChannel: (contactId: Id, channel: { kind: ChannelKind; value: string; label: string | null }) => void
+  updateChannel: (channelId: Id, patch: { value?: string; label?: string | null }) => void
+  removeChannel: (channelId: Id) => void
+  /** Exactly one primary per kind, so the contact card always has something to show. */
+  setPrimaryChannel: (channelId: Id) => void
 
   commitImport: (
     plan: ImportPlan,
@@ -218,6 +225,82 @@ export const useStore = create<AppState>()(
             const c = db.contacts.find((x) => x.id === id)
             if (!c) return
             Object.assign(c, patch, { updated_at: new Date().toISOString() })
+          }),
+        }),
+
+      addChannel: (contactId, channel) =>
+        set({
+          db: mutate(get().db, (db) => {
+            const value = channel.value.trim()
+            if (!value) return
+            const normalized = normalizeChannel(channel.kind, value)
+            if (!normalized) return
+            const sameKind = db.contact_channels.filter(
+              (c) => c.contact_id === contactId && c.kind === channel.kind,
+            )
+            if (sameKind.some((c) => c.value_normalized === normalized)) return
+            db.contact_channels.push({
+              id: nextId('ch', db.contact_channels),
+              contact_id: contactId,
+              kind: channel.kind,
+              value,
+              value_normalized: normalized,
+              is_primary: sameKind.length === 0,
+              label: channel.label,
+            })
+            const contact = db.contacts.find((c) => c.id === contactId)
+            if (contact) contact.updated_at = new Date().toISOString()
+          }),
+        }),
+
+      updateChannel: (channelId, patch) =>
+        set({
+          db: mutate(get().db, (db) => {
+            const ch = db.contact_channels.find((c) => c.id === channelId)
+            if (!ch) return
+            if (patch.value !== undefined) {
+              const value = patch.value.trim()
+              if (!value) return
+              ch.value = value
+              // The normalised form is the dedupe key, so it is recomputed rather
+              // than edited — otherwise an edited number stops matching itself.
+              ch.value_normalized = normalizeChannel(ch.kind, value)
+            }
+            if (patch.label !== undefined) ch.label = patch.label
+            const contact = db.contacts.find((c) => c.id === ch.contact_id)
+            if (contact) contact.updated_at = new Date().toISOString()
+          }),
+        }),
+
+      removeChannel: (channelId) =>
+        set({
+          db: mutate(get().db, (db) => {
+            const ch = db.contact_channels.find((c) => c.id === channelId)
+            if (!ch) return
+            db.contact_channels = db.contact_channels.filter((c) => c.id !== channelId)
+            // Promote a replacement so the kind is never left without a primary.
+            if (ch.is_primary) {
+              const next = db.contact_channels.find(
+                (c) => c.contact_id === ch.contact_id && c.kind === ch.kind,
+              )
+              if (next) next.is_primary = true
+            }
+            const contact = db.contacts.find((c) => c.id === ch.contact_id)
+            if (contact) contact.updated_at = new Date().toISOString()
+          }),
+        }),
+
+      setPrimaryChannel: (channelId) =>
+        set({
+          db: mutate(get().db, (db) => {
+            const target = db.contact_channels.find((c) => c.id === channelId)
+            if (!target) return
+            for (const c of db.contact_channels) {
+              if (c.contact_id !== target.contact_id || c.kind !== target.kind) continue
+              c.is_primary = c.id === channelId
+            }
+            const contact = db.contacts.find((c) => c.id === target.contact_id)
+            if (contact) contact.updated_at = new Date().toISOString()
           }),
         }),
 

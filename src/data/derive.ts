@@ -251,18 +251,30 @@ export function overdueSchedule(db: Database, deals: Deal[], asOf = new Date()):
       }
       const shortfall = itemNgn - credit
       credit = 0
-      const due = new Date(`${item.due_on}T00:00:00`)
-      if (due < asOf) {
-        out.push({
-          item,
-          deal,
-          daysOverdue: Math.floor((asOf.getTime() - due.getTime()) / DAY_MS),
-          amountNgnMinor: shortfall,
-        })
+      // Compared as calendar dates, not instants. An instalment due today is not
+      // late yet, and parsing "2026-08-20" into a local midnight and comparing it
+      // against a UTC now would make that boundary depend on the machine's
+      // timezone. Anything reported here is at least a full day past due.
+      const daysOverdue = wholeDaysBetween(item.due_on, toDateKey(asOf))
+      if (daysOverdue > 0) {
+        out.push({ item, deal, daysOverdue, amountNgnMinor: shortfall })
       }
     }
   }
   return out.sort((a, b) => b.daysOverdue - a.daysOverdue)
+}
+
+/** YYYY-MM-DD in local time, so "today" means the user's today. */
+function toDateKey(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+/** Whole days from one YYYY-MM-DD to another, timezone-independent. */
+function wholeDaysBetween(fromKey: string, toKey: string): number {
+  const from = Date.parse(`${fromKey}T00:00:00Z`)
+  const to = Date.parse(`${toKey}T00:00:00Z`)
+  return Math.round((to - from) / DAY_MS)
 }
 
 export type AgeingBucket = '0-30' | '31-60' | '61-90' | '90+'

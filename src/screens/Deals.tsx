@@ -11,7 +11,7 @@ import { useScopedData, contactById, propertyById, subStatusName, userById } fro
 import { contactName, daysInCurrentStage, dealNgnMinor, isWon } from '@/data/derive'
 import { useStore } from '@/data/store'
 import { formatMoneyCompact, formatMoneyWhole, parseMoneyToMinor } from '@/data/money'
-import { formatDate, formatDateShort, pluralize, relativeTime } from '@/lib/format'
+import { formatDate, pluralize, relativeTime } from '@/lib/format'
 import {
   Badge,
   Button,
@@ -28,6 +28,7 @@ import {
 } from '@/components/ui'
 import { PropertyTile, StageBadge, UserChip } from '@/components/domain'
 import { FunnelChart } from '@/components/charts'
+import { LifecycleJourney, LifecycleTrack } from '@/components/Lifecycle'
 import type { Currency, Deal, PipelineStage } from '@/data/schema'
 
 export default function Deals() {
@@ -324,9 +325,6 @@ function DealDetail({
   const stage = db.pipeline_stages.find((s) => s.id === deal.stage_id)
   const subs = db.pipeline_sub_statuses.filter((s) => s.stage_id === deal.stage_id)
   const team = db.teams.find((t) => t.id === deal.team_id)
-  const history = db.deal_stage_history
-    .filter((h) => h.deal_id === deal.id)
-    .sort((a, b) => new Date(a.changed_at).getTime() - new Date(b.changed_at).getTime())
   const activities = db.activities
     .filter((a) => a.deal_id === deal.id)
     .sort((a, b) => new Date(b.occurred_at).getTime() - new Date(a.occurred_at).getTime())
@@ -370,7 +368,7 @@ function DealDetail({
         </p>
       </Card>
 
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <div className="mt-3 grid items-start gap-3 sm:grid-cols-2">
         <Card>
           <div className="text-[12px] font-medium text-ink-500">Stage</div>
           <Select
@@ -450,32 +448,12 @@ function DealDetail({
       </div>
 
       <Card className="mt-3">
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-[13px] font-semibold text-ink-800">Stage history</h3>
+        <h3 className="mb-3 text-[13px] font-semibold text-ink-800">Lifecycle</h3>
+        <LifecycleTrack db={db} stageId={deal.stage_id} deal={deal} />
+        <div className="mt-4 border-t border-ink-100 pt-3">
+          <h4 className="mb-2 text-[12px] font-medium text-ink-600">How it got here</h4>
+          <LifecycleJourney db={db} deal={deal} />
         </div>
-        <ol className="relative border-l border-ink-100 pl-4">
-          {history.map((h, i) => {
-            const next = history[i + 1]
-            const daysHere = (
-              (new Date(next?.changed_at ?? Date.now()).getTime() - new Date(h.changed_at).getTime()) /
-              864e5
-            ).toFixed(0)
-            return (
-              <li key={h.id} className="relative pb-3 last:pb-0">
-                <span className="absolute top-1.5 -left-[21px] h-2.5 w-2.5 rounded-full border-2 border-surface bg-brand-400" />
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[13px] font-medium text-ink-800">
-                    {db.pipeline_stages.find((s) => s.id === h.to_stage_id)?.name}
-                  </span>
-                  <span className="text-[11.5px] text-ink-400">
-                    {formatDateShort(h.changed_at)} · {userById(db, h.changed_by)?.full_name}
-                  </span>
-                  <Badge tone="neutral">{daysHere}d in stage</Badge>
-                </div>
-              </li>
-            )
-          })}
-        </ol>
       </Card>
 
       {activities.length > 0 && (

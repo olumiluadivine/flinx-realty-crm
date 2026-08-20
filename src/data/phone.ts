@@ -1,3 +1,6 @@
+import { isSocialKind, type ChannelKind } from './schema'
+import { normalizeHandle } from './social'
+
 /**
  * Phone and email normalisation — the dedupe key (R-CON-4).
  *
@@ -60,6 +63,8 @@ export function isProbablyEmail(raw: string): boolean {
 }
 
 /** Normalise whichever kind it is — used by the import dedupe engine. */
-export function normalizeChannel(kind: 'phone' | 'email' | 'whatsapp', value: string): string {
-  return kind === 'email' ? normalizeEmail(value) : normalizePhone(value)
+export function normalizeChannel(kind: ChannelKind, value: string): string {
+  if (kind === 'email') return normalizeEmail(value)
+  if (isSocialKind(kind)) return normalizeHandle(kind, value)
+  return normalizePhone(value)
 }
