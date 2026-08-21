@@ -69,7 +69,7 @@ export const TOUR: Step[] = [
   },
   {
     route: '/settings',
-    viewAs: 'u-ceo',
+    viewAs: 'u-admin-1',
     title: 'Settings',
     body: 'Pipeline stages, teams, payment plans and currency, all editable without a developer. Rename or reorder a stage and the deal board and reports follow immediately.',
   },

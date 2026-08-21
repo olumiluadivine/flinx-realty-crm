@@ -78,7 +78,7 @@ describe('visibility — one rule, three roles (R-ACC-3/4/8)', () => {
   })
 
   it('a super admin sees everything', () => {
-    const scope = buildScope(db, userOf('u-ceo'))
+    const scope = buildScope(db, userOf('u-admin-1'))
     expect(scopeContacts(scope, db.contacts)).toHaveLength(db.contacts.length)
     expect(scope.isCompanyWide).toBe(true)
   })

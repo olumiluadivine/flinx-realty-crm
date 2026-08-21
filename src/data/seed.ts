@@ -147,9 +147,9 @@ export function buildSeed(now = new Date()): Database {
   })
 
   const users: User[] = [
-    mkUser('u-ceo', 'Adebayo Okonkwo', 'super_admin', 'Chief Executive Officer', '31000001'),
-    mkUser('u-pres', 'Ngozi Adeyemi', 'super_admin', 'President', '31000002'),
-    mkUser('u-gsl', 'Emeka Balogun', 'super_admin', 'General Sales Lead', '31000003'),
+    mkUser('u-admin-1', 'Adebayo Okonkwo', 'super_admin', 'Managing Director', '31000001'),
+    mkUser('u-admin-2', 'Ngozi Adeyemi', 'super_admin', 'Finance Director', '31000002'),
+    mkUser('u-admin-3', 'Emeka Balogun', 'super_admin', 'Head of Sales', '31000003'),
     mkUser('u-lead-1', 'Funmilayo Adeleke', 'team_lead', 'Sales Manager — Mainland', '31000004'),
     mkUser('u-lead-2', 'Chinedu Eze', 'team_lead', 'Sales Manager — Diaspora & Island', '31000005'),
     mkUser('u-sp-1', 'Tunde Bakare', 'salesperson', 'Sales Executive', '31000006'),
@@ -310,7 +310,7 @@ export function buildSeed(now = new Date()): Database {
     },
     {
       id: 'ib-3', format: 'csv', filename: 'coolfm-drivetime-jul.csv',
-      uploaded_by: 'u-gsl', uploaded_at: iso(atTime(addDays(now, -58), 11, 6)),
+      uploaded_by: 'u-admin-3', uploaded_at: iso(atTime(addDays(now, -58), 11, 6)),
       rows_total: 41, rows_created: 33, rows_merged: 5, rows_failed: 3,
       source: 'ad_campaign', source_detail: 'Cool FM — Drive-time Jul 2026', reverted_at: null,
     },
